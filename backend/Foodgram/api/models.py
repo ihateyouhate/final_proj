@@ -27,5 +27,5 @@ class Recipe(models.Model):
     name = models.CharField(max_length=200)
     text = models.TextField()
     image = models.ImageField(upload_to='posts/')
-    tags = models.ManyToManyField(Tags)
+    tags = models.ManyToManyField(Tag)
     cooking_time = models.PositiveIntegerField(validators=[validate_nums])
