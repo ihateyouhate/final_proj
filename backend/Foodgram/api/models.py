@@ -26,13 +26,17 @@ class Ingredient(models.Model):
 
 class Recipe(models.Model):
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='recipe')
+        User, on_delete=models.CASCADE, related_name='recipes')
     name = models.CharField(max_length=200)
     text = models.TextField()
-    image = models.ImageField(upload_to='posts/')
+    image = models.ImageField(upload_to='recipes/')
+    ingredients = models.ManyToManyField(
+        Ingredient, through='IngredientAmount')
     tags = models.ManyToManyField(Tag)
     cooking_time = models.PositiveIntegerField(validators=[validate_nums])
 
+    def __str__(self):
+        return self.name
 
 class IngredientAmount(models.Model):
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
@@ -48,5 +52,35 @@ class IngredientAmount(models.Model):
             models.UniqueConstraint(
                 fields=['ingredient', 'recipe'],
                 name='unique_ingredient_recipe'
+            )
+        ]
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='fav_user')
+    recipe = models.ForeignKey(
+        Recipe, on_delete=models.CASCADE, related_name='favorite')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_user_recipe'
+            )
+        ]
+
+
+class ShoppingCart(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='shopping_carts')
+    recipe = models.ForeignKey(
+        Recipe, on_delete=models.CASCADE, related_name='shopping_carts')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_shop_user_recipe'
             )
         ]
