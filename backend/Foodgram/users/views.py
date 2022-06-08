@@ -1,12 +1,14 @@
 from rest_framework import status
 from rest_framework.generics import ListAPIView, get_object_or_404
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import viewsets
 
 from api.pagination import CustomPagination
 from .models import Follow, User
-from .serializers import FollowListSerializer, FollowSerializer
+from .serializers import (FollowListSerializer, FollowSerializer,
+                          ProfileCreateSerializer, ProfileSerializers)
 
 
 class FollowView(APIView):
@@ -38,3 +40,18 @@ class FollowListView(ListAPIView):
         serializer = FollowListSerializer(
             page, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
+
+
+class ProfileViewset(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    pagination_class = CustomPagination
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ProfileSerializers
+        return ProfileCreateSerializer
+
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return (IsAuthenticated(),)
+        return (AllowAny(),)

@@ -9,7 +9,7 @@ from .models import Follow, User
 class ProfileCreateSerializer(UserCreateSerializer):
 
     class Meta:
-        fields = ('email', 'username', 'first_name',
+        fields = ('id', 'email', 'username', 'first_name',
                   'last_name', 'password')
         model = User
 
