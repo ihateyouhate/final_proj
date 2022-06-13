@@ -1,5 +1,8 @@
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from django.http import HttpResponse
+from reportlab.pdfgen.canvas import Canvas
 from rest_framework import filters
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -7,13 +10,15 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 
-from .models import Favorite, Ingredient, Tag, Recipe, ShoppingCart
+from .models import (Favorite, Ingredient, IngredientAmount, Tag,
+                     Recipe, ShoppingCart)
 from .serializers import (FavoriteSerializer, TagSerializer,
                           IngredientSerializer, RecipeListSerializer,
                           RecipeSerializer, ShoppingCartSerializer)
 from .pagination import CustomPagination
 from .permissions import IsAuthorOrReadOnly
 from .filters import RecipeFilter
+
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
@@ -76,3 +81,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def delete_shopping_cart(self, request, pk):
         return self.delete_method_for_actions(
             request=request, pk=pk, model=ShoppingCart)
+
+    @staticmethod
+    def reportlab_canvas(dictionary):
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = (
+            'attachment; filename="shopping_cart.pdf"')
+        canvas = Canvas(response)
+        for number, item in enumerate(dictionary, start=1):
+            canvas.drawString(100, 100,
+                f'Позиция №{number}: {item["ingredient__name"]} - '
+                f'{item["ingredient_total"]}'
+                f' {item["ingredient__measurement_unit"]}')
+        canvas.showPage()
+        canvas.save()
+        return response
+
+    @action(detail=False, permission_classes=[IsAuthenticated])
+    def download_shopping_cart(self, request):
+        ingredients = IngredientAmount.objects.filter(
+            recipe__shopping_carts__user=request.user).values(
+            'ingredient__name', 'ingredient__measurement_unit').order_by(
+            'ingredient__name').annotate(ingredient_total=Sum('amount'))
+        return RecipeViewSet.reportlab_canvas(ingredients)
