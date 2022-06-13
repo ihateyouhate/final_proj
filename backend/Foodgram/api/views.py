@@ -62,7 +62,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         model_obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(methods=['post'], detail=True, permission_classes=[IsAuthenticated])
+    @action(methods=['post'],
+            detail=True, permission_classes=[IsAuthenticated])
     def favorite(self, request, pk):
         return self.post_method_for_actions(
             request=request, pk=pk, serializers=FavoriteSerializer)
@@ -72,7 +73,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return self.delete_method_for_actions(
             request=request, pk=pk, model=Favorite)
 
-    @action(methods=['post'], detail=True, permission_classes=[IsAuthenticated])
+    @action(methods=['post'],
+            detail=True, permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk):
         return self.post_method_for_actions(
             request=request, pk=pk, serializers=ShoppingCartSerializer)
@@ -89,7 +91,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'attachment; filename="shopping_cart.pdf"')
         canvas = Canvas(response)
         for number, item in enumerate(dictionary, start=1):
-            canvas.drawString(100, 100,
+            canvas.drawString(
+                100, 100,
                 f'Позиция №{number}: {item["ingredient__name"]} - '
                 f'{item["ingredient_total"]}'
                 f' {item["ingredient__measurement_unit"]}')
