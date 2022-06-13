@@ -1,4 +1,3 @@
-from attr import fields
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
@@ -30,16 +29,7 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
         source='ingredient.measurement_unit')
 
     class Meta:
-        fields = ('id', 'ingredient', 'amount', 'recipe')
-        model = IngredientAmount
-
-
-class AddIngredientSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-    amount = serializers.IntegerField()
-
-    class Meta:
-        fields = ('id', 'amount')
+        fields = ('id', 'amount', 'measurement_unit', 'name')
         model = IngredientAmount
 
 
@@ -71,6 +61,15 @@ class RecipeListSerializer(serializers.ModelSerializer):
             return False
         return ShoppingCart.objects.filter(
             user=request.user, recipe=obj).exists()
+
+
+class AddIngredientSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField()
+
+    class Meta:
+        fields = ('id', 'amount')
+        model = IngredientAmount
 
 
 class RecipeSerializer(serializers.ModelSerializer):
