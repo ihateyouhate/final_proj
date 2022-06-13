@@ -1,11 +1,8 @@
-from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 
 from users.models import User
-from .validators import validate_nums
-
-User = get_user_model()
+from .validators import ingred_nums, validate_nums
 
 
 class Tag(models.Model):
@@ -39,13 +36,10 @@ class Recipe(models.Model):
     def __str__(self):
         return self.name
 
+
 class IngredientAmount(models.Model):
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
-    amount = models.PositiveIntegerField(
-        validators=[MinValueValidator(
-            1, message='Ингредиенты должны быть больше нуля'
-        )]
-    )
+    amount = models.PositiveIntegerField(validators=[ingred_nums])
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
 
     class Meta:
