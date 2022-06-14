@@ -1,7 +1,7 @@
 from csv import reader
 
 from django.core.management.base import BaseCommand
-from api.models import Ingredient
+from users.models import Ingredient
 
 
 class Command(BaseCommand):

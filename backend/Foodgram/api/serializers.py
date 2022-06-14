@@ -1,8 +1,8 @@
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
-from .models import (Favorite, Ingredient, IngredientAmount, Recipe,
-                     ShoppingCart, Tag)
+from users.models import (Favorite, Ingredient, IngredientAmount, Recipe,
+                          ShoppingCart, Tag)
 from users.serializers import ProfileSerializers
 
 
@@ -70,6 +70,11 @@ class AddIngredientSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'amount')
         model = IngredientAmount
+
+    def validate_amount(self, value):
+        if value < 1:
+            raise serializers.ValidationError({
+                    'amount': 'Количество ингредиентов должно быть => 0'})
 
 
 class RecipeSerializer(serializers.ModelSerializer):
