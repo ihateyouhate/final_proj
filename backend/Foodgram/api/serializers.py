@@ -4,6 +4,7 @@ from rest_framework import serializers
 from users.models import (Favorite, Ingredient, IngredientAmount, Recipe,
                           ShoppingCart, Tag)
 from users.serializers import ProfileSerializers
+from api.validators import ingred_nums
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -49,32 +50,27 @@ class RecipeListSerializer(serializers.ModelSerializer):
         queryset = IngredientAmount.objects.filter(recipe=obj)
         return IngredientAmountSerializer(queryset, many=True).data
 
-    def get_is_favorited(self, obj):
+    def fav_and_shopping(self, obj, model):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
             return False
-        return Favorite.objects.filter(user=request.user, recipe=obj).exists()
+        return model.objects.filter(
+            user=request.user, recipe=obj).exists()
+
+    def get_is_favorited(self, obj):
+        return self.fav_and_shopping(obj, Favorite)
 
     def get_is_in_shopping_cart(self, obj):
-        request = self.context.get('request')
-        if not request or request.user.is_anonymous:
-            return False
-        return ShoppingCart.objects.filter(
-            user=request.user, recipe=obj).exists()
+        return self.fav_and_shopping(obj, ShoppingCart)
 
 
 class AddIngredientSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-    amount = serializers.IntegerField()
+    amount = serializers.IntegerField(validators=[ingred_nums])
 
     class Meta:
         fields = ('id', 'amount')
         model = IngredientAmount
-
-    def validate_amount(self, value):
-        if value < 1:
-            raise serializers.ValidationError({
-                    'amount': 'Количество ингредиентов должно быть => 0'})
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -91,14 +87,15 @@ class RecipeSerializer(serializers.ModelSerializer):
         model = Recipe
 
     def create_ingredients(self, ingredients, recipe):
+        to_create = []
         for ingredient in ingredients:
-            IngredientAmount.objects.create(
-                recipe=recipe, ingredient=ingredient['id'],
-                amount=ingredient['amount'])
+            to_create.append(IngredientAmount(recipe=recipe,
+                             ingredient=ingredient['id'],
+                             amount=ingredient['amount']))
+        IngredientAmount.objects.bulk_create(to_create)
 
     def create_tags(self, tags, recipe):
-        for tag in tags:
-            recipe.tags.add(tag)
+        recipe.tags.set(tags)
 
     def create(self, validated_data):
         author = self.context.get('request').user
