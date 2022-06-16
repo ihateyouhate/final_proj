@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'api',
     'users',
+    'recipes',
     'djoser',
 ]
 
@@ -125,6 +126,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 }
+
+PAGE_SIZE = 6
 
 DJOSER = {
     'LOGIN_FIELD': 'email',

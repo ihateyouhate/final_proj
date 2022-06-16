@@ -1,7 +1,7 @@
 from csv import reader
 
 from django.core.management.base import BaseCommand
-from users.models import Tag
+from recipes.models import Tag
 
 
 class Command(BaseCommand):
