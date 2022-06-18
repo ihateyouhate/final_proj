@@ -10,7 +10,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv(
     'SECRET_KEY', default='*&j6ttx&g(t8o7pal=jg5qqt&!r*en6v8md74iyiohso3+9)z7')
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -25,7 +25,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
-    'rest_framework_simplejwt',
     'api',
     'users',
     'recipes',
@@ -79,8 +78,8 @@ else:
             'USER': os.environ.get('POSTGRES_USER', default='postgres'),
             'PASSWORD': os.environ.get(
                 'POSTGRES_PASSWORD', default='postgres28'),
-            'HOST': os.environ.get('DB_HOST'),
-            'PORT': os.environ.get('DB_PORT'),
+            'HOST': os.environ.get('DB_HOST', default='db'),
+            'PORT': os.environ.get('DB_PORT', default='5432'),
         }
     }
 
