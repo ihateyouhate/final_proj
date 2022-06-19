@@ -1,6 +1,6 @@
 # praktikum_new_diplom
 ***
-![example workflow]
+![foodgram-workflows](https://github.com/ihateyouhate/final_proj/workflows/foodgram-workflows/badge.svg)
 ***
 ## Финальный проект курса Python-разработчик Яндекс-Практикум
 ***
